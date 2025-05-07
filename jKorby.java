@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
+
 public class jKorby {
     public static void main(String[] args) throws IOException {
         if (args.length >1) {
@@ -32,8 +33,8 @@ public class jKorby {
         BufferedReader reader = new BufferedReader(input);
         for (;;){
             System.out.print("> ");
-            String line = reader.readLine(); // Reads an input 
-            if (line == null) {
+            String line = reader.readLine(); // Reads an input normally typin ctrl+D return EOF
+            if (line == null) { // Checking to stop loop 
                 break;
             }
             run(line);
@@ -41,6 +42,13 @@ public class jKorby {
     }
 
     private static void run(String source){
+        Scanner scanner = new Scanner(source);
+        List<Token> tokens = scanner.scanTokens(); // Will create a scanner class later on
 
+        // for now, ill just print the tokens
+        for(Token token : tokens){
+            System.out.println(token);
+        }
     }
+    // Error Handling
 }
