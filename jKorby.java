@@ -10,6 +10,7 @@ import java.util.List;
 
 
 public class jKorby {
+    static boolean hadError = false; // Restart  had error
     public static void main(String[] args) throws IOException {
         if (args.length >1) {
             System.out.println("Usage: Korby [script]");
@@ -25,6 +26,9 @@ public class jKorby {
     private static void runFile(String path) throws IOException{
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes,Charset.defaultCharset()));
+        if (hadError) {
+            System.exit(65); // Indicate and error in the exit code
+        }
     }
 
     // Run jKorby without any arguments to open a prompt to run code 
@@ -38,6 +42,7 @@ public class jKorby {
                 break;
             }
             run(line);
+            hadError = false; // Restart without killing the session
         }
     }
 
@@ -51,4 +56,11 @@ public class jKorby {
         }
     }
     // Error Handling
+    static void error (int line, String message){
+        report(line, "", message);
+    }
+    private static void report (int line, String where, String message){
+        System.err.println("line["+line+"] Error"+where+": "+ message);
+        hadError = true;
+    }
 }
