@@ -12,6 +12,27 @@ class Scanner { // SCAN!!!!
     private int current = 0;
     private int line = 1;
 
+    // Keyword Map or smth  
+    private static final Map<String, tokenType> keywords;
+    static{
+        keywords = new HashMap<>();
+        keywords.put("and", AND);
+        keywords.put("class", CLASS);
+        keywords.put("else", ELSE);
+        keywords.put("false", FALSE);
+        keywords.put("for", FOR);
+        keywords.put("fun", FUN);
+        keywords.put("if", IF);
+        keywords.put("nil", NIL);
+        keywords.put("or", OR);
+        keywords.put("print", PRINT);
+        keywords.put("return", RETURN);
+        keywords.put("super", SUPER);
+        keywords.put("this", THIS);
+        keywords.put("true", TRUE);
+        keywords.put("var", VAR);
+        keywords.put("while", WHILE);
+    }
     Scanner(String source){
         this.source = source;
     }
@@ -83,10 +104,24 @@ class Scanner { // SCAN!!!!
             string();
             break;
         default:
-           jKorby.error(line,"Unexpected character");
+            if (isDigit(c)) {
+                number();
+            } 
+            else if (isAlpha(c)) {
+                identifier();
+            }
+            else jKorby.error(line,"Unexpected character");
         }
       }
 
+      // Check if alpha numeric
+      private void identifier(){
+        while (isAlphaNumeric(peek())) {
+            advance();
+        }
+      }
+    
+      // Check if next char is =
       private boolean match(char expected){
         if(isAtEnd()) return false;
         if (source.charAt(current) != expected) {
@@ -95,6 +130,7 @@ class Scanner { // SCAN!!!!
         current ++;
         return true;
       }
+
       // Get comments -> Lookahead
       private char peek(){
         if (isAtEnd()) {
@@ -102,11 +138,45 @@ class Scanner { // SCAN!!!!
         }
         return source.charAt(current);
       }
+      // Find if its a number
+      private boolean isDigit(char c){
+        return c >= '0' && c<=9;
+      }
+
+      // If we indeed are in a number, find if has floating point
+      private void number(){
+        if (peek() == '.' && isDigit(peekNext())) {
+            // consume the .
+            advance();
+
+            while (isDigit(peek())) {
+                advance();
+            }
+        }
+        addToken(NUMBER, Double.parseDouble(source.substring(start,current)));
+      }
+
+      // Check to see if there is a number after the .
+      private char peekNext(){
+        if (current+1 >= source.length()) {
+            return '\0';
+        }
+        return source.charAt(current +1 );
+      }
+
+      private boolean isAlpha(char check){
+        return( check >= 'a' && check <= 'z' || check >= 'A' && check <= 'Z' || check == '_' );
+      }
+
+      private boolean isAlphaNumeric(char check){
+        return isAlpha(check) || isDigit(check);
+      }
 
       // Increment char to be read
       private char advance(){
         return source.charAt(current++); 
       }
+
       // Read String like in comment
       private void string(){
         while (peek() != '"' && !isAtEnd()) {
