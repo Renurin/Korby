@@ -48,10 +48,10 @@ public class jKorby {
 
     private static void run(String source){
         Scanner scanner = new Scanner(source);
-        List<Token> tokens = scanner.scanTokens(); // Will create a scanner class later on
+        List<token> tokens = scanner.scanTokens(); // Will create a scanner class later on
 
         // for now, ill just print the tokens
-        for(Token token : tokens){
+        for(token token : tokens){
             System.out.println(token);
         }
     }

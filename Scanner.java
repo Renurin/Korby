@@ -16,22 +16,22 @@ class Scanner { // SCAN!!!!
     private static final Map<String, tokenType> keywords;
     static{
         keywords = new HashMap<>();
-        keywords.put("and", AND);
-        keywords.put("class", CLASS);
-        keywords.put("else", ELSE);
-        keywords.put("false", FALSE);
-        keywords.put("for", FOR);
-        keywords.put("fun", FUN);
-        keywords.put("if", IF);
-        keywords.put("nil", NIL);
-        keywords.put("or", OR);
-        keywords.put("print", PRINT);
-        keywords.put("return", RETURN);
-        keywords.put("super", SUPER);
-        keywords.put("this", THIS);
-        keywords.put("true", TRUE);
-        keywords.put("var", VAR);
-        keywords.put("while", WHILE);
+        keywords.put("and", tokenType.AND);
+        keywords.put("class", tokenType.CLASS);
+        keywords.put("else", tokenType.ELSE);
+        keywords.put("false", tokenType.FALSE);
+        keywords.put("for", tokenType.FOR);
+        keywords.put("fun", tokenType.FUN);
+        keywords.put("if", tokenType.IF);
+        keywords.put("nil", tokenType.NIL);
+        keywords.put("or", tokenType.OR);
+        keywords.put("print", tokenType.PRINT);
+        keywords.put("return", tokenType.RETURN);
+        keywords.put("super", tokenType.SUPER);
+        keywords.put("this", tokenType.THIS);
+        keywords.put("true", tokenType.TRUE);
+        keywords.put("var", tokenType.VAR);
+        keywords.put("while", tokenType.WHILE);
     }
     Scanner(String source){
         this.source = source;
@@ -43,7 +43,7 @@ class Scanner { // SCAN!!!!
             start = current;
             scanToken();
         }
-        tokens.add(new token(EOF,"", null, line));
+        tokens.add(new token(tokenType.EOF,"", null, line));
         return tokens;
     }
 
@@ -57,29 +57,29 @@ class Scanner { // SCAN!!!!
         char c = advance();
         switch (c) {
             // Single character
-        case '(': addToken(LEFT_PAREN); break;
-        case ')': addToken(RIGHT_PAREN); break;
-        case '{': addToken(LEFT_BRACE); break;
-        case '}': addToken(RIGHT_BRACE); break;
-        case ',': addToken(COMMA); break;
-        case '.': addToken(DOT); break;
-        case '-': addToken(MINUS); break;
-        case '+': addToken(PLUS); break;
-        case ';': addToken(SEMICOLON); break;
-        case '*': addToken(STAR); break; 
+        case '(': addToken(tokenType.LEFT_PAREN); break;
+        case ')': addToken(tokenType.RIGHT_PAREN); break;
+        case '{': addToken(tokenType.LEFT_BRACE); break;
+        case '}': addToken(tokenType.RIGHT_BRACE); break;
+        case ',': addToken(tokenType.COMMA); break;
+        case '.': addToken(tokenType.DOT); break;
+        case '-': addToken(tokenType.MINUS); break;
+        case '+': addToken(tokenType.PLUS); break;
+        case ';': addToken(tokenType.SEMICOLON); break;
+        case '*': addToken(tokenType.STAR); break; 
             
             // Operators
         case '!':
-            addToken(match('=') ? BANG_EQUAL : BANG);
+            addToken(match('=') ? tokenType.BANG_EQUAL : tokenType.BANG);
             break;
         case '=':
-            addToken(match('=') ? EQUAL_EQUAL : EQUAL);
+            addToken(match('=') ? tokenType.EQUAL_EQUAL : tokenType.EQUAL);
             break;
         case '<':
-            addToken(match('=') ? LESS_EQUAL : LESS);
+            addToken(match('=') ? tokenType.LESS_EQUAL : tokenType.LESS);
             break;
         case '>':
-            addToken(match('=') ? GREATER_EQUAL : GREATER);
+            addToken(match('=') ? tokenType.GREATER_EQUAL : tokenType.GREATER);
             break;
         case '/':
             if (match('/')){
@@ -88,7 +88,7 @@ class Scanner { // SCAN!!!!
                     advance();
                 }
             } else {
-                addToken(SLASH);
+                addToken(tokenType.SLASH);
             }
             break;
 
@@ -119,6 +119,12 @@ class Scanner { // SCAN!!!!
         while (isAlphaNumeric(peek())) {
             advance();
         }
+        String text = source.substring(start,current);
+        tokenType type = keywords.get(text);
+        if (type == null) {
+            type = tokenType.IDENTIFIER;
+        }
+            addToken(type);
       }
     
       // Check if next char is =
@@ -153,7 +159,7 @@ class Scanner { // SCAN!!!!
                 advance();
             }
         }
-        addToken(NUMBER, Double.parseDouble(source.substring(start,current)));
+        addToken(tokenType.NUMBER, Double.parseDouble(source.substring(start,current)));
       }
 
       // Check to see if there is a number after the .
@@ -194,7 +200,7 @@ class Scanner { // SCAN!!!!
 
         // Trim the surrounding quotes " "
         String value = source.substring(start+1, current -1);
-        addToken(STRING, value);
+        addToken(tokenType.STRING, value);
       }
 
       // Output, grabs the lexemme and creates the token
