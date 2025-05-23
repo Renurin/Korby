@@ -1,3 +1,4 @@
+package korby;
 
 
 import java.util.ArrayList;
@@ -100,6 +101,7 @@ class Scanner { // SCAN!!!!
         case '\n':
             line++;
             break;
+
         case '"':
             string();
             break;
@@ -197,7 +199,6 @@ class Scanner { // SCAN!!!!
         }
         // if close
         advance();
-
         // Trim the surrounding quotes " "
         String value = source.substring(start+1, current -1);
         addToken(tokenType.STRING, value);

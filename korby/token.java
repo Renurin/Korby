@@ -1,3 +1,4 @@
+package korby;
 class token {
     final tokenType type;
     final String lexemme;

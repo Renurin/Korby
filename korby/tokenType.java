@@ -1,3 +1,4 @@
+package korby;
 enum tokenType{
     // single character token
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,
@@ -9,7 +10,7 @@ enum tokenType{
     IDENTIFIER, STRING, NUMBER,
 
     // Keyword
-    AND,CLASS, ELSE, IF, WHILE, VAR, OR, STRUCT, PRINT, RETURN, TRUE, FALSE, NIL, SUPER, FUN, THIS,
+    AND,CLASS, ELSE, IF, WHILE, VAR, OR, STRUCT, PRINT, RETURN, TRUE, FALSE, NIL, SUPER, FUN, THIS, FOR,
 
     EOF
 }
