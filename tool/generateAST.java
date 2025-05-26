@@ -16,10 +16,10 @@ public class generateAST {
         String outputDir = args[0];
 
         defineAST(outputDir,"Expr", Arrays.asList(
-        "Binary   : Expr left, Token operator, Expr right",
+        "Binary   : Expr left, token operator, Expr right",
         "Grouping : Expr expression",
         "Literal  : Object value",
-        "Unary    : Token operator, Expr right"
+        "Unary    : token operator, Expr right"
         ));
     }
     // This needs to output the base Expr.java
@@ -42,7 +42,7 @@ public class generateAST {
     }
     private static void defineType( PrintWriter writer, String baseName, String className, String fieldList){
         // Creating class for Expr:
-        writer.println(" static class "+ className + "extends " + baseName +"{");
+        writer.println(" static class "+ className + " extends " + baseName +"{");
 
         // Constructor
         writer.println("    " + className + "(" + fieldList + ") {");
