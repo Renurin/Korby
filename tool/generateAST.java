@@ -53,10 +53,10 @@ public class generateAST {
         
         for(String type : types){ // itirating through the subclasses and declaring a visit method for each one.
             String typename = type.split(":")[0].trim();
-            writer.println("    R visit"+ typename+ baseName + "("+ typename+" "+ baseName.toLowerCase()+ ");" );
+            writer.println("    R visit" + typename + baseName + "(" +typename + " " + baseName.toLowerCase() + ");");
 
         }
-        writer.println("}");
+        writer.println(" }");
     }
 
     private static void defineType( PrintWriter writer, String baseName, String className, String fieldList){
