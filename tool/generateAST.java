@@ -49,7 +49,7 @@ public class generateAST {
 
     private static void defineVisitor(PrintWriter writer, String baseName, List<String> types){
         // Creating vistor classes
-        writer.println("    interface visitor<R> {");
+        writer.println("    interface Visitor<R> {");
         
         for(String type : types){ // itirating through the subclasses and declaring a visit method for each one.
             String typename = type.split(":")[0].trim();

@@ -51,17 +51,31 @@ public class jKorby {
         Scanner scanner = new Scanner(source);
         List<token> tokens = scanner.scanTokens(); // Will create a scanner class later on
 
-        // for now, ill just print the tokens
-        for(token token : tokens){
-            System.out.println(token);
+        Parser parser = new Parser(tokens);
+        Expr expr = parser.parse();
+
+        // Stop if there was a syntax error.
+        // done with parse =3
+        if (hadError) {
+            return;
         }
+        System.out.println(new ASTprinter().print(expr));
     }
+
     // Error Handling
     static void error (int line, String message){
         report(line, "", message);
     }
+
     private static void report (int line, String where, String message){
         System.err.println("line["+line+"] Error"+where+": "+ message);
         hadError = true;
+    }
+    static void error (token Token, String message){
+        if (Token.type == tokenType.EOF) {
+            report(Token.line, " at end", message);
+        } else {
+            report(Token.line, " at '"+ Token.lexemme+ "'", message);
+        }
     }
 }

@@ -2,12 +2,13 @@ package korby;
 import java.util.List;
 
 abstract class Expr{
-    interface visitor<R> {
+    interface Visitor<R> {
     R visitBinaryExpr(Binary expr);
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitUnaryExpr(Unary expr);
 }
+
  static class Binary extends Expr{
     Binary(Expr left, token operator, Expr right) {
     this.left= left;
