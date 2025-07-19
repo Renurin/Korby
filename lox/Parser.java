@@ -1,6 +1,7 @@
-package korby;
+package lox;
+import java.util.ArrayList;
 import java.util.List;
-import static korby.tokenType.*;
+import static lox.tokenType.*;
 
 
 // Given a valid sequence of tokens, produce the corresponding syntax treee
@@ -16,16 +17,114 @@ public class Parser {
     }
     // visit later when add statements
     // for now its just a single expression
-    Expr parse() {
-        try{
-            return expression();
-        } catch(ParseError error){
-            return null;
+    //----------------------------------
+    // the later is now!
+    // Creates a series of stmt 
+
+    List<Stmt> parse(){
+        List<Stmt> statements = new ArrayList<>();
+        while (!isAtEnd()) {
+            statements.add(declaration());
         }
+        return statements;
     }
+
     private Expr expression(){
         return equality();
     }
+
+    private Stmt declaration(){
+        try {
+            if (match(VAR)) {
+                return varDeclaration();
+            }
+            return statement();
+        } catch (ParseError error) {
+            // TODO: handle exception
+            syncronize();
+            return null;
+        }
+    }
+
+    private Stmt statement(){
+        if (match(PRINT)) {
+            return printStmt(); // Each gets its own method =3
+        }
+        if (match(LEFT_PAREN)) {
+            return new Stmt.Block(block());
+        }
+        if (match(IF)) {
+            return ifStatement();
+        }
+        return expressionStmt();
+    }
+
+    private Stmt ifStatement(){
+        consume(LEFT_PAREN, "Expect '(' after 'if'.");
+        Expr condition = expression();
+        consume(RIGHT_PAREN, "Expect ')' after 'if' condition.");
+
+        Stmt thenBranch = statement();
+        Stmt elseBranch = null;
+        if (match(ELSE)) {
+            elseBranch = statement();
+        }
+        return new Stmt.If(condition, thenBranch, elseBranch);
+    }
+
+    // Print
+    private Stmt printStmt(){
+        Expr value = expression();
+        consume(SEMICOLON, "Expected ';' after value.");
+        return new Stmt.Print(value);
+    }
+
+    private Stmt varDeclaration(){
+        token name= consume(IDENTIFIER, "Expect variable name.");
+        
+        Expr initialiaze = null;
+        if (match(EQUAL)) {
+            initialiaze = expression();
+        }
+
+        consume(SEMICOLON, "Expect ';' after variable declaration.");
+        return new Stmt.Var(name, initialiaze);
+    }
+
+    private Stmt expressionStmt(){
+        Expr expr = expression();
+        consume(SEMICOLON, "Expect ';' after expression.");
+        return new Stmt.Expression(expr);
+    }
+
+    private List<Stmt> block(){
+        List<Stmt> statements = new ArrayList<>();
+
+        while (!check(RIGHT_BRACE) && !isAtEnd()) {
+            statements.add(declaration());
+        }
+        consume(RIGHT_BRACE, "Expect '}' after block.");
+        return statements;
+    }
+
+    private Expr assignment(){
+        Expr expr = equality();
+
+        if (match(EQUAL)) {
+            token equals = previous();
+            Expr value = assignment();
+
+            if (expr instanceof Expr.Variable) {
+                token name = ((Expr.Variable)expr).name;
+                return new Expr.Assign(name,value);
+            }
+            error(equals, "Invalid assignment target.");
+        }
+        return expr;
+    }
+
+
+
     private Expr equality(){
         Expr expr = comparison();
 
@@ -83,7 +182,7 @@ public class Parser {
         if (match(BANG, MINUS)) {
             token operator = previous();
             Expr right = unary();
-            return new Expr.Unary(operator, right)
+            return new Expr.Unary(operator, right);
         }
         return primary();
     }
@@ -103,13 +202,19 @@ public class Parser {
         if (match(NUMBER, STRING)) {
             return new Expr.Literal(previous().literal);
         }
+        if (match(IDENTIFIER)) {
+            return new Expr.Variable(previous());
+        }
         if (match(LEFT_PAREN)) {
             Expr expr = expression();
             consume(RIGHT_PAREN, "Expect ')' after expression.");
             return new Expr.Grouping(expr);
         }
         throw error(peek(), "Expected expression.");
+        
     }
+
+    
     
 
     // This checks to see if the current token has any of the given types.
@@ -150,7 +255,7 @@ public class Parser {
 
     // Enter panic mode to report error from consumes()
     private ParseError error(token Token, String message){
-        jKorby.error(Token, message);
+        jLox.error(Token, message);
         return new ParseError();
     }
 

@@ -1,18 +1,21 @@
-package korby;
+package lox;
+
+import java.util.List;
 
 import javax.management.RuntimeErrorException;
 
 // to clarify, the interpreter is doing a post-order traversal
 // each node evaluetes its children before doing its own work
-class Interpreter implements Expr.Visitor<Object>{
+class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 
-    void interpret(Expr expression){
+    void interpret(List <Stmt> stmts){
         try {
-            Object value = evaluate(expression);
-            System.out.println(stringify(value));
+            for ( Stmt stmt : stmts) {
+                execute(stmt);
+            }
         } catch (RuntimeError error) {
             // TODO: handle exception
-            korby.runtimeError(error);
+            jLox.runtimeError(error);
         }
     }
 
@@ -32,6 +35,67 @@ class Interpreter implements Expr.Visitor<Object>{
         return expr.accept(this);
     }
 
+    private void execute(Stmt stmt){
+        stmt.accept(this);
+    }
+
+    void executeBlock(List<Stmt> statements, Environment environment){
+        Environment previous = this.environment;
+        try {
+            this.environment = environment;
+            for (Stmt stmt : statements) {
+                execute(stmt);
+            }
+            
+        } finally {
+            this.environment = previous;
+        }
+    }
+
+    @Override
+    public Void visitBlockStmt(Stmt.Block stmt){
+        executeBlock(stmt.statements, new Environment(environment));
+        return null;
+    }
+
+    @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt){
+        evaluate(stmt.expression);
+        return null;
+    }
+
+    @Override
+    public Void visitIfStmt(Stmt.If stmt){
+        if (isTruthy(evaluate(stmt.condition))) {
+            execute(stmt.thenBranch);
+        }
+    }
+
+    @Override
+    public Void visitPrintStmt(Stmt.Print stmt){
+        Object value = evaluate(stmt.expression);
+        System.out.println(stringify(value));
+        return null;
+    }
+
+    @Override
+    public Void visitVarStmt(Stmt.Var stmt){
+        Object value = null;
+        if (stmt.initialiaze != null) {
+            value = evaluate(stmt.initialiaze);
+        }
+
+        Environment.define(stmt.name.lexemme, value);
+        return null;
+    }
+
+    @Override
+    public Object visitAssignExpr(Expr.Assign expr){
+        Object value = evaluate(expr.value);
+        Environment.assign(expr.name, value);
+        return value;
+    }
+
     // Evaluating unary
     @Override
     public Object visitUnaryExpr(Expr.Unary expr){
@@ -49,6 +113,11 @@ class Interpreter implements Expr.Visitor<Object>{
         }
         // UNreachable
         return null;
+    }
+
+    @Override
+    public Object visitVariableExpr(Expr.Variable expr){
+        return Environment.get(expr.name);
     }
 
     private void checkNumberOperand(token operator, Object operand){

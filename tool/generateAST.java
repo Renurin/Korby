@@ -21,12 +21,19 @@ public class generateAST {
         "Literal  : Object value",
         "Unary    : token operator, Expr right"
         ));
+
+        defineAST(outputDir, "Stmt", Arrays.asList(
+            "Block      : List<Stmt> statements",
+            "Expression : Expr expression",
+            "If         : Expr condition, Stmt thenBranch," + " Stmt elseBranch",
+            "Print      : Expr expression"
+        ));
     }
     // This needs to output the base Expr.java
     private static void defineAST(String outputDir, String basename, List<String> types) throws IOException{
         String path = outputDir + "/" + basename + ".java";
         PrintWriter writer = new PrintWriter(path, "UTF-8");
-        writer.println("package korby;");
+        writer.println("package lox;");
         writer.println("import java.util.List;");
         writer.println();
         writer.println("abstract class "+basename+"{");

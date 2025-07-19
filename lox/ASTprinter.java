@@ -1,6 +1,6 @@
-package korby;
+package lox;
 
-public class ASTprinter implements Expr.visitor<String> {
+public class ASTprinter implements Expr.Visitor<String> {
     String print(Expr expr){
         return expr.accept(this);
     }

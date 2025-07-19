@@ -1,4 +1,4 @@
-package korby;
+package lox;
 
 
 import java.util.ArrayList;
@@ -112,7 +112,7 @@ class Scanner { // SCAN!!!!
             else if (isAlpha(c)) {
                 identifier();
             }
-            else jKorby.error(line,"Unexpected character");
+            else jLox.error(line,"Unexpected character");
         }
       }
 
@@ -195,7 +195,7 @@ class Scanner { // SCAN!!!!
         }
         // if it doesnt close
         if (isAtEnd()) {
-            jKorby.error(line, "Unterminated String");
+            jLox.error(line, "Unterminated String");
         }
         // if close
         advance();

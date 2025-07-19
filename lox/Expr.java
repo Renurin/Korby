@@ -1,4 +1,4 @@
-package korby;
+package lox;
 import java.util.List;
 
 abstract class Expr{
@@ -7,13 +7,12 @@ abstract class Expr{
     R visitGroupingExpr(Grouping expr);
     R visitLiteralExpr(Literal expr);
     R visitUnaryExpr(Unary expr);
-}
-
+ }
  static class Binary extends Expr{
     Binary(Expr left, token operator, Expr right) {
     this.left= left;
-    this.operator= operator;
-    this.right= right;
+    this.token= token;
+    this.Expr= Expr;
     }
 
     @Override
@@ -52,7 +51,7 @@ abstract class Expr{
  static class Unary extends Expr{
     Unary(token operator, Expr right) {
     this.operator= operator;
-    this.right= right;
+    this.Expr= Expr;
     }
 
     @Override

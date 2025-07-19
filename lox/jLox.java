@@ -1,4 +1,4 @@
-package korby;
+package lox;
 import java.io.IOException;
 import java.io.BufferedReader;
 import java.io.IOError;
@@ -10,11 +10,15 @@ import java.nio.file.Paths;
 import java.util.List;
 
 
-public class jKorby {
+public class jLox {
+    // Running interpreter
+    private static final Interpreter interpreter = new Interpreter();
+
     static boolean hadError = false; // Restart  had error
+    static boolean hadRuntimeError = false; // Helps to tell what line were
     public static void main(String[] args) throws IOException {
         if (args.length >1) {
-            System.out.println("Usage: Korby [script]");
+            System.out.println("Usage: Lox [script]");
             System.out.println(64);
         } else if (args.length == 1) {
             runFile(args[0]);
@@ -23,16 +27,19 @@ public class jKorby {
         }
     }
 
-    // Run jKorby giving a path to file so that it reads and executes it
+    // Run jLox giving a path to file so that it reads and executes it
     private static void runFile(String path) throws IOException{
         byte[] bytes = Files.readAllBytes(Paths.get(path));
         run(new String(bytes,Charset.defaultCharset()));
         if (hadError) {
             System.exit(65); // Indicate and error in the exit code
         }
+        if (hadRuntimeError) {
+            System.exit(70);
+        }
     }
 
-    // Run jKorby without any arguments to open a prompt to run code 
+    // Run jLox without any arguments to open a prompt to run code 
     private static void runPrompt() throws IOException {
         InputStreamReader input = new InputStreamReader(System.in);
         BufferedReader reader = new BufferedReader(input);
@@ -52,14 +59,14 @@ public class jKorby {
         List<token> tokens = scanner.scanTokens(); // Will create a scanner class later on
 
         Parser parser = new Parser(tokens);
-        Expr expr = parser.parse();
+        List<Stmt> stmts = parser.parse();
 
         // Stop if there was a syntax error.
         // done with parse =3
         if (hadError) {
             return;
         }
-        System.out.println(new ASTprinter().print(expr));
+        interpreter.interpret(stmts);
     }
 
     // Error Handling
@@ -77,6 +84,10 @@ public class jKorby {
         } else {
             report(Token.line, " at '"+ Token.lexemme+ "'", message);
         }
+    }
+    static void runtimeError(RuntimeError error){
+        System.err.println(error.getMessage()+ "\n[line " + error.Token.line + "]");
+        hadRuntimeError = true;
     }
 
 }

@@ -1,4 +1,4 @@
-package korby;
+package lox;
 enum tokenType{
     // single character token
     LEFT_PAREN, RIGHT_PAREN, LEFT_BRACE, RIGHT_BRACE, COMMA, DOT, MINUS, PLUS, SEMICOLON, SLASH, STAR,

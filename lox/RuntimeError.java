@@ -1,4 +1,4 @@
-package korby;
+package lox;
 
 class RuntimeError extends RuntimeException {
     final token Token;
