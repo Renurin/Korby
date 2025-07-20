@@ -17,16 +17,22 @@ public class generateAST {
 
         defineAST(outputDir, "Expr", Arrays.asList(
         "Binary   : Expr left, token operator, Expr right",
+        "Call     : Expr callee, token paren, List<Expr> arguments",
         "Grouping : Expr expression",
         "Literal  : Object value",
+        "Logical  : Expr left, token operator, Expr right",
         "Unary    : token operator, Expr right"
         ));
 
         defineAST(outputDir, "Stmt", Arrays.asList(
             "Block      : List<Stmt> statements",
             "Expression : Expr expression",
+            "Function   : token name, List<token> params,"+ " List<Stmt> body",
             "If         : Expr condition, Stmt thenBranch," + " Stmt elseBranch",
-            "Print      : Expr expression"
+            "Print      : Expr expression",
+            "Return     : token keyword, Expr value",
+            "Var        : token name, Expr initializer",
+            "While      : Expr condition, Stmt body"
         ));
     }
     // This needs to output the base Expr.java

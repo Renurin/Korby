@@ -1,4 +1,6 @@
-# Korby
+# jLox
+## Integrant
+Renan Camara - 222006409 - Turma 03 - 16hrs
 ## What is this repo?
 This repository is my studies on compilers. Creating one and understading the basics of compiling.
 ## Objectives:
