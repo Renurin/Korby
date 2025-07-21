@@ -66,6 +66,14 @@ public class jLox {
         if (hadError) {
             return;
         }
+        Resolver resolver = new Resolver(interpreter);
+        resolver.resolve(stmts);
+
+        // Gotta check again cause need to skip interpret.
+        if (hadError) {
+            return;
+        }
+
         interpreter.interpret(stmts);
     }
 

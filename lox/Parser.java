@@ -31,11 +31,14 @@ public class Parser {
     }
 
     private Expr expression(){
-        return equality();
+        return assignment();
     }
 
     private Stmt declaration(){
         try {
+            if (match(CLASS)) {
+                return classDeclaration();
+            }
             if (match(FUN)) {
                 return function("function");
             }
@@ -48,6 +51,20 @@ public class Parser {
             syncronize();
             return null;
         }
+    }
+
+    private Stmt classDeclaration(){
+        token name = consume(IDENTIFIER, "Expect class name");
+        consume(LEFT_BRACE, "Expect '(' before class body");
+
+        List<Stmt.Function> methods = new ArrayList<>();
+        while (!check(RIGHT_BRACE)&& !isAtEnd()) {
+            methods.add(function("methods"));
+        }
+
+        consume(RIGHT_BRACE, "Expected '}' after clas body");
+
+        return new Stmt.Class(name, methods);
     }
 
     private Stmt statement(){

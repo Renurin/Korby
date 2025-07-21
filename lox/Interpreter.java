@@ -1,12 +1,15 @@
 package lox;
 
 import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.ArrayList;
 import javax.management.RuntimeErrorException;
 
 // to clarify, the interpreter is doing a post-order traversal
 // each node evaluetes its children before doing its own work
 class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
+    private final Map<Expr, Integer> locals = new HashMap<>();
     final Environment globals = new Environment();
     private Environment environment = globals;
     // private Environment environment = new Environment();
@@ -74,6 +77,11 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
         stmt.accept(this);
     }
 
+    void resolve(Expr expr, int depth){
+        locals.put(expr,depth);
+    }
+
+
     void executeBlock(List<Stmt> statements, Environment environment){
         Environment previous = this.environment;
         try {
@@ -94,16 +102,25 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
     }
 
     @Override
+    public Void visitClassStmt(Stmt.Class stmt){
+        environment.define(stmt.name.lexemme, null);
+        LoxClass klass = new LoxClass (stmt.name.lexemme);
+        environment.assign(stmt.name, klass);
+        return null;
+    }
+
+    @Override
     public Void visitExpressionStmt(Stmt.Expression stmt){
         evaluate(stmt.expression);
         return null;
     }
+
     @Override
-public Void visitFunctionStmt(Stmt.Function stmt){
-    LoxFunction function = new LoxFunction(stmt);
-    environment.define(stmt.name.lexemme, function);
-    return null;
-}
+    public Void visitFunctionStmt(Stmt.Function stmt){
+        LoxFunction function = new LoxFunction(stmt, environment);
+        environment.define(stmt.name.lexemme, function);
+        return null;
+    }
 
     @Override
     public Void visitIfStmt(Stmt.If stmt){
@@ -153,7 +170,13 @@ public Void visitFunctionStmt(Stmt.Function stmt){
     @Override
     public Object visitAssignExpr(Expr.Assign expr){
         Object value = evaluate(expr.value);
-        Environment.assign(expr.name, value);
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            environment.assignAt(distance,expr.name, value);
+        } else{
+            globals.assign(expr.name, value);
+        }
+        
         return value;
     }
 
@@ -178,7 +201,16 @@ public Void visitFunctionStmt(Stmt.Function stmt){
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr){
-        return Environment.get(expr.name);
+        return lookupVariable(expr.name, expr);
+    }
+
+    private Object lookupVariable(token name, Expr expr){
+        Integer distance = locals.get(expr);
+        if (distance != null) {
+            return environment.getAt(distance, name.lexemme);
+        } else{
+            return globals.get(name);
+        }
     }
 
     private void checkNumberOperand(token operator, Object operand){
