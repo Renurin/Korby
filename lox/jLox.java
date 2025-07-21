@@ -64,6 +64,7 @@ public class jLox {
         // Stop if there was a syntax error.
         // done with parse =3
         if (hadError) {
+            System.out.println("Parser error occurred.");
             return;
         }
         Resolver resolver = new Resolver(interpreter);
@@ -71,6 +72,7 @@ public class jLox {
 
         // Gotta check again cause need to skip interpret.
         if (hadError) {
+            System.out.println("Resolver error occured.");
             return;
         }
 

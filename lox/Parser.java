@@ -92,6 +92,8 @@ public class Parser {
             return forStatement();
         }
         return expressionStmt();
+
+        
     }
 
     private Stmt forStatement(){
@@ -215,7 +217,10 @@ public class Parser {
         List<Stmt> statements = new ArrayList<>();
 
         while (!check(RIGHT_BRACE) && !isAtEnd()) {
-            statements.add(declaration());
+            Stmt stmt = declaration();
+            if (stmt != null) {
+                statements.add(stmt);
+            }
         }
         consume(RIGHT_BRACE, "Expect '}' after block.");
         return statements;

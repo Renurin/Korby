@@ -95,6 +95,7 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     public Void visitIfStmt(Stmt.If stmt){
         resolve(stmt.condition);
         resolve(stmt.thenBranch);
+        
         if (stmt.elseBranch != null) {
             resolve(stmt.elseBranch);
         }

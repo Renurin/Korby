@@ -72,7 +72,7 @@ abstract class Stmt{
  static class If extends Stmt{
     If(Expr condition, Stmt thenBranch,Stmt elseBranch) {
     this.condition= condition;
-    this.thenBranch= elseBranch;
+    this.thenBranch= thenBranch;
     this.elseBranch= elseBranch;
     }
 

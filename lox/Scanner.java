@@ -153,6 +153,9 @@ class Scanner { // SCAN!!!!
 
       // If we indeed are in a number, find if has floating point
       private void number(){
+        while (isDigit(peek())) {
+            advance();
+        }
         if (peek() == '.' && isDigit(peekNext())) {
             // consume the .
             advance();

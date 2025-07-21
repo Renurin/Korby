@@ -10,14 +10,6 @@ for (var j = 0; j < 3; j = j + 1) {
     print j;
 }
 
-print "--- Loop with break ---";
-var k = 0;
-while (true) {
-    if (k == 2) {
-        break;
-    }
-    print k;
-    k = k + 1;
-}
+print "--- Loop with break not suported unfortunatetly ---";
 
 

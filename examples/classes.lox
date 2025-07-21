@@ -8,16 +8,16 @@ class Greeter {
     }
 }
 
-var greeter = new Greeter("Alice");
+var greeter = Greeter("Alice");
 greeter.sayHi();
 
 class Counter {
-    init() {
+    init(count) {
         this.count = count;
     }
 
     increment() {
-        this.count = count + 1;
+        this.count = this.count + 1;
     }
 
     getCount() {
@@ -25,7 +25,7 @@ class Counter {
     }
 }
 
-var counter = new Counter();
+var counter = Counter(0);
 counter.increment();
 counter.increment();
 print "Count: " + counter.getCount();

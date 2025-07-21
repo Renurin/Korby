@@ -32,14 +32,14 @@ class Cat < Animal {
     }
 }
 
-var dog = new Dog("Buddy");
+var dog = Dog("Buddy");
 dog.speak();
 dog.fetch();
 
-var cat = new Cat("Whiskers");
+var cat = Cat("Whiskers");
 cat.speak();
 
-var animal = new Animal("Generic Animal");
+var animal = Animal("Generic Animal");
 animal.speak();
 
 

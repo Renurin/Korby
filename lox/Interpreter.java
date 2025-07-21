@@ -182,14 +182,18 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
         return null;
     }
 
-    @Override
-    public Void visitIfStmt(Stmt.If stmt){
-        if (isTruthy(evaluate(stmt.condition))) {
-            execute(stmt.thenBranch);
-     
-        }
-        return null;
+@Override
+public Void visitIfStmt(Stmt.If stmt) {
+    Object condition = evaluate(stmt.condition);
+    boolean truthy = isTruthy(condition);
+    // System.out.println("If condition: " + condition + ", truthy: " + truthy); // Debug
+    if (truthy) {
+        execute(stmt.thenBranch);
+    } else if (stmt.elseBranch != null) {
+        execute(stmt.elseBranch);
     }
+    return null;
+}
 
     @Override
     public Void visitPrintStmt(Stmt.Print stmt){
@@ -261,6 +265,8 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
 
     @Override
     public Object visitVariableExpr(Expr.Variable expr){
+        // Object value = environment.get(expr.name); // Debug
+        // System.out.println("Variable " + expr.name.lexemme + " = " + value); // Debug
         return lookupVariable(expr.name, expr);
     }
 
@@ -291,24 +297,30 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
     // True or false?
     // Using ruby's rule where if not false or nil everything is true
     private boolean isTruthy(Object obj){
-        if (obj == null) {
+        if (obj == null) {  
             return false;
         }
         if (obj instanceof Boolean) {
-            return (boolean)obj;
+            return (Boolean)obj;
+        }
+        if (obj instanceof Double) {
+            return (Double)obj != 0.0;
         }
         return true;
     }
 
-    private boolean isEqual(Object obj1, Object obj2){
+    private boolean isEqual(Object obj1, Object obj2) {
         if (obj1 == null && obj2 == null) {
             return true;
         }
-        if (obj1 == null) {
+        if (obj1 == null || obj2 == null) {
             return false;
         }
+        if (obj1 instanceof String && obj2 instanceof String) {
+            return ((String) obj1).equals((String) obj2);
+        }
         return obj1.equals(obj2);
-    }
+}
 
     private String stringify(Object object){
         if (object == null) {
@@ -325,57 +337,62 @@ class Interpreter implements Expr.Visitor<Object>, Stmt.Visitor<Void>{
     }
 
     // binary
-    @Override
-    public Object visitBinaryExpr(Expr.Binary expr){
-        Object left = evaluate(expr.left);
-        Object right = evaluate(expr.right);
-
-        switch (expr.operator.type) {
-            case GREATER:
-                // Runtime error handling
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left > (double)right;
-            case GREATER_EQUAL:
-                // Runtime error handling
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left >= (double)right;
-            case LESS:
-                // Runtime error handling
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left < (double)right;
-            case LESS_EQUAL:
-                // Runtime error handling
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left <= (double)right;
-            case BANG_EQUAL:
-                return !isEqual(left,right);
-            case EQUAL_EQUAL:
-                return isEqual(left,right);
-            case MINUS:
-                // Runtime error handling
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left - (double)right;
-            case PLUS:
-                if (left instanceof Double && right instanceof Double) {
-                    return (double)left + (double)right;
-                }
-                if (left instanceof String && right instanceof String) {
-                    return (String)left + (String)right;
-                }
-                throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings!");
-            case SLASH:
-                // Runtime error handling
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left / (double)right;
-            case STAR:
-                // Runtime error handling
-                checkNumberOperands(expr.operator, left, right);
-                return (double)left * (double) right;
-            
-        }
-        // Unreachable
-        return null;
+@Override
+public Object visitBinaryExpr(Expr.Binary expr) {
+    Object left = evaluate(expr.left);
+    Object right = evaluate(expr.right);
+    // System.out.println("Binary op: " + expr.operator.type + ", left = " + left + ", right = " + right); // DEbug
+    switch (expr.operator.type) {
+        case GREATER:
+            checkNumberOperands(expr.operator, left, right);
+            boolean greater = (Double) left > (Double) right;
+            //System.out.println("GREATER result: " + greater); // Debug
+            return greater;
+        case GREATER_EQUAL:
+            checkNumberOperands(expr.operator, left, right);
+            boolean greaterEqual = (Double) left >= (Double) right;
+            //System.out.println("GREATER_EQUAL result: " + greaterEqual); // Debug
+            return greaterEqual;
+        case LESS:
+            checkNumberOperands(expr.operator, left, right);
+            boolean less = (Double) left < (Double) right;
+            // System.out.println("LESS result: " + less); // Debug
+            return less;
+        case LESS_EQUAL:
+            checkNumberOperands(expr.operator, left, right);
+            boolean lessEqual = (Double) left <= (Double) right;
+            //System.out.println("LESS_EQUAL result: " + lessEqual); // Debug
+            return lessEqual;
+        case BANG_EQUAL:
+            boolean notEqual = !isEqual(left, right);
+            // System.out.println("BANG_EQUAL result: " + notEqual); // Debug
+            return notEqual;
+        case EQUAL_EQUAL:
+            boolean equal = isEqual(left, right);
+            // System.out.println("EQUAL_EQUAL result: " + equal); // Debug
+            return equal;
+        case MINUS:
+            checkNumberOperands(expr.operator, left, right);
+            return (double) left - (double) right;
+        case PLUS:
+            if (left instanceof Double && right instanceof Double) {
+                return (double)left + (double)right;
+            }
+            if (left instanceof String || right instanceof String) {
+                String leftStr = stringify(left);
+                String rightStr = stringify(right);
+                return leftStr + rightStr;
+            }
+            throw new RuntimeError(expr.operator, "Operands must be two numbers or two strings!");
+        case SLASH:
+            checkNumberOperands(expr.operator, left, right);
+            return (double) left / (double) right;
+        case STAR:
+            checkNumberOperands(expr.operator, left, right);
+            return (double) left * (double) right;
     }
+    return null;
+}
 
     @Override
     public Object visitCallExpr(Expr.Call expr){
