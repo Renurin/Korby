@@ -1,0 +1,33 @@
+class Greeter {
+    init(name) {
+        this.name = name;
+    }
+
+    sayHi() {
+        print "Hello, " + this.name + "!";
+    }
+}
+
+var greeter = new Greeter("Alice");
+greeter.sayHi();
+
+class Counter {
+    init() {
+        this.count = count;
+    }
+
+    increment() {
+        this.count = count + 1;
+    }
+
+    getCount() {
+        return this.count;
+    }
+}
+
+var counter = new Counter();
+counter.increment();
+counter.increment();
+print "Count: " + counter.getCount();
+
+

@@ -76,7 +76,7 @@ public class Parser {
         if (match(PRINT)) {
             return printStmt(); // Each gets its own method =3
         }
-        if (match(LEFT_PAREN)) {
+        if (match(LEFT_BRACE)) {
             return new Stmt.Block(block());
         }
         if (match(IF)) {
@@ -179,7 +179,7 @@ public class Parser {
     private Stmt whileStmt(){
         consume(LEFT_PAREN, "Expect '(' after while.");
         Expr condition = expression();
-        consume(RIGHT_BRACE, "Expect')' after condtion.");
+        consume(RIGHT_PAREN, "Expect')' after condtion.");
         Stmt body = statement();
 
         return new Stmt.While(condition, body);

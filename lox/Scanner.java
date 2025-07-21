@@ -148,7 +148,7 @@ class Scanner { // SCAN!!!!
       }
       // Find if its a number
       private boolean isDigit(char c){
-        return c >= '0' && c<=9;
+        return c >= '0' && c<='9';
       }
 
       // If we indeed are in a number, find if has floating point
