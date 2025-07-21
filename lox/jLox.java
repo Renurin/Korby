@@ -9,8 +9,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
-
 public class jLox {
+    
     // Running interpreter
     private static final Interpreter interpreter = new Interpreter();
 

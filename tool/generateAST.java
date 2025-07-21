@@ -19,16 +19,20 @@ public class generateAST {
         "Assign   : token name,Expr value",
         "Binary   : Expr left,token operator,Expr right",
         "Call     : Expr callee,token paren,List<Expr> arguments",
+        "Get      : Expr object,token name",
         "Grouping : Expr expression",
         "Literal  : Object value",
         "Logical  : Expr left,token operator,Expr right",
+        "Set      : Expr object,token name,Expr value",
+        "Super    : token keyword,token method",
+        "This     : token keyword",
         "Unary    : token operator,Expr right",
         "Variable : token name"
         ));
 
         defineAST(outputDir, "Stmt", Arrays.asList(
             "Block      : List<Stmt> statements",
-            "Class      : token name,List<Stmt.Function> methods",
+            "Class      : token name,Expr.Variable superclass,List<Stmt.Function> methods",
             "Expression : Expr expression",
             "Function   : token name,List<token> params,"+ "List<Stmt> body",
             "If         : Expr condition, Stmt thenBranch," + "Stmt elseBranch",

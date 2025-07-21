@@ -17,8 +17,18 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
 
     private enum FunctionType{
         NONE,
-        FUNCTION
+        FUNCTION,
+        INITIALIZER,
+        METHOD
     }
+
+    private enum ClassType{
+        NONE,
+        CLASS,
+        SUBCLASS
+    }
+
+    private ClassType currentClass= ClassType.NONE;
 
     @Override
     public Void visitBlockStmt(Stmt.Block stmt){
@@ -29,10 +39,46 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     }
 
     @Override
+    public Void visitExpressionStmt(Stmt.Expression stmt){
+        resolve(stmt.expression);
+        return null;
+    }
+
+    @Override
     public Void visitClassStmt(Stmt.Class stmt){
+        ClassType enclosingClass = currentClass;
+        currentClass = ClassType.CLASS;
+
         declare(stmt.name);
         define(stmt.name);
+        if (stmt.superclass != null && stmt.name.lexemme.equals(stmt.superclass.name.lexemme)) {
+            jLox.error(stmt.superclass.name, "A class cant inherit from itself.");
+        }
 
+        if (stmt.superclass != null) {
+            currentClass = ClassType.SUBCLASS;
+            resolve(stmt.superclass);
+        }
+
+        if (stmt.superclass != null) {
+            beginScope();
+            scopes.peek().put("super", true);
+        }
+
+        beginScope();
+        scopes.peek().put("this", true);
+        for (Stmt.Function method : stmt.methods) {
+            FunctionType declaration = FunctionType.METHOD;
+            if (method.name.lexemme.equals("init")) {
+                declaration = FunctionType.INITIALIZER;
+            }
+            resolveFunction(method, declaration);
+        }
+        endScope();
+        if (stmt.superclass != null) {
+            endScope();
+        }
+        currentClass = enclosingClass;
         return null;
     }
 
@@ -46,6 +92,16 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         return null;
     }
     @Override
+    public Void visitIfStmt(Stmt.If stmt){
+        resolve(stmt.condition);
+        resolve(stmt.thenBranch);
+        if (stmt.elseBranch != null) {
+            resolve(stmt.elseBranch);
+        }
+        return null;
+    }
+
+    @Override
     public Void visitPrintStmt(Stmt.Print stmt){
         resolve(stmt.expression);
         return null;
@@ -57,6 +113,10 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
             jLox.error(stmt.keyword, "Cant return from top level code.");
         }
         if (stmt.value != null) {
+            if (currentFunction == FunctionType.INITIALIZER) {
+                jLox.error(stmt.keyword, "Cant return a value from an initializer.");
+            }
+
             resolve(stmt.value);
         }
         return null;
@@ -103,6 +163,11 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
         }
         return null;
     }
+    @Override
+    public Void visitGetExpr(Expr.Get expr){
+        resolve(expr.object);
+        return null;
+    }
 
     @Override
     public Void visitGroupingExpr(Expr.Grouping expr){
@@ -120,6 +185,35 @@ class Resolver implements Expr.Visitor<Void>, Stmt.Visitor<Void>{
     public Void visitLogicalExpr(Expr.Logical expr){
         resolve(expr.left);
         resolve(expr.right);
+        return null;
+    }
+    @Override
+    public Void visitSetExpr(Expr.Set expr){
+        resolve(expr.value);
+        resolve(expr.object);
+        return null;
+    }
+
+    @Override
+    public Void visitSuperExpr(Expr.Super expr){
+        if (currentClass == ClassType.NONE) {
+            jLox.error(expr.keyword, "Cant use 'super' outside of a class.");
+        }else if (currentClass != ClassType.SUBCLASS) {
+            jLox.error(expr.keyword, "Cant use super in a class with no superclass.");
+        }
+        resolveLocal(expr, expr.keyword);
+        return null;
+    }
+
+
+    @Override
+    public Void visitThisExpr(Expr.This expr){
+        if (currentClass  == ClassType.NONE) {
+            jLox.error(expr.keyword, "Cant use 'this' outside of a class.");
+            return null;
+        }
+        
+        resolveLocal(expr, expr.keyword);
         return null;
     }
 

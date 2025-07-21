@@ -26,8 +26,9 @@ abstract class Stmt{
     final List<Stmt> statements;
 }
  static class Class extends Stmt{
-    Class(token name,List<Stmt.Function> methods) {
+    Class(token name,Expr.Variable superclass,List<Stmt.Function> methods) {
     this.name= name;
+    this.superclass= superclass;
     this.methods= methods;
     }
 
@@ -37,6 +38,7 @@ abstract class Stmt{
         }
 
     final token name;
+    final Expr.Variable superclass;
     final List<Stmt.Function> methods;
 }
  static class Expression extends Stmt{
@@ -52,7 +54,7 @@ abstract class Stmt{
     final Expr expression;
 }
  static class Function extends Stmt{
-    Function(token name, List<token> params, List<Stmt> body) {
+    Function(token name,List<token> params,List<Stmt> body) {
     this.name= name;
     this.params= params;
     this.body= body;
@@ -64,13 +66,13 @@ abstract class Stmt{
         }
 
     final token name;
-    final  List<token> params;
-    final  List<Stmt> body;
+    final List<token> params;
+    final List<Stmt> body;
 }
  static class If extends Stmt{
-    If(Expr condition, Stmt thenBranch, Stmt elseBranch) {
+    If(Expr condition, Stmt thenBranch,Stmt elseBranch) {
     this.condition= condition;
-    this.thenBranch= thenBranch;
+    this.thenBranch= elseBranch;
     this.elseBranch= elseBranch;
     }
 
@@ -81,7 +83,7 @@ abstract class Stmt{
 
     final Expr condition;
     final  Stmt thenBranch;
-    final  Stmt elseBranch;
+    final Stmt elseBranch;
 }
  static class Print extends Stmt{
     Print(Expr expression) {
@@ -96,7 +98,7 @@ abstract class Stmt{
     final Expr expression;
 }
  static class Return extends Stmt{
-    Return(token keyword, Expr value) {
+    Return(token keyword,Expr value) {
     this.keyword= keyword;
     this.value= value;
     }
@@ -107,10 +109,10 @@ abstract class Stmt{
         }
 
     final token keyword;
-    final  Expr value;
+    final Expr value;
 }
  static class Var extends Stmt{
-    Var(token name, Expr initializer) {
+    Var(token name,Expr initializer) {
     this.name= name;
     this.initializer= initializer;
     }
@@ -121,10 +123,10 @@ abstract class Stmt{
         }
 
     final token name;
-    final  Expr initializer;
+    final Expr initializer;
 }
  static class While extends Stmt{
-    While(Expr condition, Stmt body) {
+    While(Expr condition,Stmt body) {
     this.condition= condition;
     this.body= body;
     }
@@ -135,7 +137,7 @@ abstract class Stmt{
         }
 
     final Expr condition;
-    final  Stmt body;
+    final Stmt body;
 }
 
     abstract <R> R accept(Visitor<R> visitor);
